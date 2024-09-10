@@ -8,7 +8,6 @@ import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetSocket;
 
 public class Proxy extends AbstractVerticle {
-
   @Override
   public void start(Promise<Void> startPromise) {
     NetClient client = vertx.createNetClient();
@@ -19,6 +18,7 @@ public class Proxy extends AbstractVerticle {
             int idx = proxyAddress.indexOf(':');
             String host = proxyAddress.substring(0, idx);
             int port = Integer.parseInt(proxyAddress.substring(idx + 1));
+            System.out.println(host + ":" + port);
             client.connect(port, host).onComplete(ar -> {
               if (ar.succeeded()) {
                 NetSocket serverSocket = ar.result();
@@ -39,6 +39,7 @@ public class Proxy extends AbstractVerticle {
                       }
                     });
               } else {
+                ar.cause().printStackTrace();
                 req.response().setStatusCode(403).end();
               }
             });
@@ -46,7 +47,7 @@ public class Proxy extends AbstractVerticle {
             req.response().setStatusCode(405).end();
           }
         })
-        .listen(8085)
+        .listen(80)
         .onComplete(ar -> {
           if (ar.succeeded()) {
             startPromise.complete();
